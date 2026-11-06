@@ -194,6 +194,7 @@ erDiagram
         text category "MERCH | FNB | BUNDLE"
         integer price_idr
         integer stock_available
+        text_array variant_labels "e.g. S,M,L,XL; empty if none"
         text image_url
         boolean is_active
     }
@@ -250,7 +251,7 @@ erDiagram
 
 ## 4. Shared Frontend–Backend Contracts (`src/lib/contracts/`)
 
-Both Frontend (**Ken & Dave**) and Backend (**Sean & Keane**) import these exact Zod schemas and types. Each contract file is split by domain (see section 2) and re-exported from `index.ts`, so `import { ... } from '@/lib/contracts'` always works. Changing an existing schema needs the agreement of its frontend–backend pair, written in the pull request.
+Both Frontend (**Ken & Dave**) and Backend (**Sean & Keane**) import these exact Zod schemas and types (Zod 4 syntax: `z.email()`, `z.uuid()`). The live source is `src/lib/contracts/`; if this section and the code disagree, the code wins and this section gets updated. Each contract file is split by domain (see section 2) and re-exported from `index.ts`, so `import { ... } from '@/lib/contracts'` always works. Changing an existing schema needs the agreement of its frontend–backend pair, confirmed in the team chat before merging into `main`.
 
 ```typescript
 // src/lib/contracts/common.contract.ts
@@ -265,24 +266,39 @@ export const PaidMethodSchema = z.enum(['QRIS', 'BCAVA', 'BRIVA', 'BNIVA', 'MAND
 // src/lib/contracts/events.contract.ts  (Ken FE -> Sean BE)
 export const CreateRegistrationSchema = z.object({
   eventSlug: z.enum(['ycr', 'heart', 'ziarah', 'baksos']),
-  ticketTierId: z.string().uuid(),
+  ticketTierId: z.uuid(),
   fullName: z.string().min(3).max(100),
   nimOrInstitution: z.string().min(2).max(100),
-  email: z.string().email(),
+  email: z.email(),
   whatsapp: WhatsappSchema,
   paymentMethod: z.union([z.literal('FREE'), PaidMethodSchema]),
 });
 export type CreateRegistrationInput = z.infer<typeof CreateRegistrationSchema>;
 
-// src/lib/contracts/marketplace.contract.ts  (Dave FE -> Keane BE)
+// src/lib/contracts/marketplace.contract.ts  (Dave FE <-> Keane BE)
+export const ProductCategorySchema = z.enum(['MERCH', 'FNB', 'BUNDLE']);
+export type ProductCategory = z.infer<typeof ProductCategorySchema>;
+
+// Catalog read model (Keane BE -> Dave FE)
+export interface ProductSummary {
+  id: string;
+  slug: string;
+  name: string;
+  category: ProductCategory;
+  priceIdr: number;
+  stockAvailable: number;
+  imageUrl: string | null;
+  variantLabels: string[];   // from products.variant_labels; [] when the product has no sizes/options
+}
+
 export const CreateMarketplaceOrderSchema = z.object({
   buyerName: z.string().min(3).max(100),
-  buyerEmail: z.string().email(),
+  buyerEmail: z.email(),
   buyerWhatsapp: WhatsappSchema,
   paymentMethod: PaidMethodSchema,
   items: z.array(
     z.object({
-      productId: z.string().uuid(),
+      productId: z.uuid(),
       variantLabel: z.string().optional(),
       quantity: z.number().int().min(1).max(10),
     })
@@ -296,7 +312,7 @@ export const CreateDonationSchema = z.object({
   campaign: z.enum(['ycr', 'baksos']),
   amountIdr: z.number().int().positive(),
   donorName: z.string().min(3).max(100),
-  donorEmail: z.string().email(),
+  donorEmail: z.email(),
   donorWhatsapp: WhatsappSchema,
   isAnonymous: z.boolean().default(false),
   message: z.string().max(280).optional(),
