@@ -18,10 +18,11 @@
 
 | Name | Role | Student Email | GitHub Username |
 | :--- | :--- | :--- | :--- |
-| **Kenneth Jonathan Halim** (Ken) | Frontend (Next.js — Events & E-Tickets) | `kjonathan08@student.ciputra.ac.id` | [`Kiyono-kouji`](https://github.com/Kiyono-kouji) |
-| **Dave Tristian Nurcahyo** (Dave) | Frontend (Next.js — Marketplace & Admin) | `dtristian@student.ciputra.ac.id` | [`Dave03062006`](https://github.com/Dave03062006) |
-| **Sean Lawton** (Sean) | Backend (Supabase — Schema, Auth, Events) | `slawton01@student.ciputra.ac.id` | [`Sean-230`](https://github.com/Sean-230) |
-| **Keane Juan Suryanto** (Keane) | Backend (Supabase — Orders & Payments) | `ksuryanto@student.ciputra.ac.id` | [`Kenn-jpg`](https://github.com/Kenn-jpg) |
+| **Gee** | Coordinator / maintainer (scope, schedule, ownership, docs, config) | `ssantoso04@student.ciputra.ac.id` | [`Gee123a`](https://github.com/Gee123a) |
+| **Kenneth Jonathan Halim** (Ken) | Frontend (Next.js — Events, E-Tickets & Timeline) | `kjonathan08@student.ciputra.ac.id` | [`Kiyono-kouji`](https://github.com/Kiyono-kouji) |
+| **Dave Tristian Nurcahyo** (Dave) | Frontend (Next.js — Marketplace, Donation & Admin) | `dtristian@student.ciputra.ac.id` | [`Dave03062006`](https://github.com/Dave03062006) |
+| **Sean Lawton** (Sean) | Backend (Supabase — Schema, Auth, Events & Timeline) | `slawton01@student.ciputra.ac.id` | [`Sean-230`](https://github.com/Sean-230) |
+| **Keane Juan Suryanto** (Keane) | Backend (Supabase — Orders, Donations & Payments) | `ksuryanto@student.ciputra.ac.id` | [`Kenn-jpg`](https://github.com/Kenn-jpg) |
 
 ---
 

@@ -1,0 +1,32 @@
+# Local-only agent and team files (get them from Gee)
+AGENTS.md
+CLAUDE.md
+owners.txt
+schedule.txt
+
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Env and secrets (keep .env.example committed)
+.env
+.env.*
+!.env.example
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
+
+# Logs and OS / editor files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

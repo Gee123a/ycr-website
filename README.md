@@ -2,25 +2,28 @@
 
 Official repository for the **PDD Website Division** — **UKM Keluarga Mahasiswa Katolik (KMK) Universitas Ciputra**, powering **Youth Catholic Revival (YCR — "The Highway")**, **Heart**, **Ziarah**, and **Baksos**.
 
+Visitors can sign up for events and get a QR e-ticket, buy YCR merch, donate, and view the event timeline. The committee gets an admin dashboard and a QR gate scanner.
+
 ---
 
 ## 1. Team & Role Ownership
 
-| Member | Role | Student Email | GitHub | Primary Track |
-| :--- | :--- | :--- | :--- | :--- |
-| **Kenneth Jonathan Halim** (Ken) | **Frontend** (Next.js) | `kjonathan08@student.ciputra.ac.id` | [@Kiyono-kouji](https://github.com/Kiyono-kouji) | Landing Page, Event Hub (`ycr`, `heart`, `ziarah`, `baksos`), Registration Form, QR E-Ticket Card |
-| **Dave Tristian Nurcahyo** (Dave) | **Frontend** (Next.js) | `dtristian@student.ciputra.ac.id` | [@Dave03062006](https://github.com/Dave03062006) | YCR Marketplace Storefront, Cart Drawer, Embedded QRIS/VA Payment Modal, Committee Admin & Gate Scanner |
-| **Sean Lawton** (Sean) | **Backend** (Supabase) | `slawton01@student.ciputra.ac.id` | [@Sean-230](https://github.com/Sean-230) | PostgreSQL Schema & Migrations, Row Level Security (RLS), Committee Auth, Atomic Registration & Check-In RPCs |
-| **Keane Juan Suryanto** (Keane) | **Backend** (Supabase) | `ksuryanto@student.ciputra.ac.id` | [@Kenn-jpg](https://github.com/Kenn-jpg) | Marketplace Order Engine, Atomic 15-min Stock Reservation RPC, Tripay/Midtrans Integration & HMAC Webhook |
+| Member | Role | GitHub | Primary Track |
+| :--- | :--- | :--- | :--- |
+| **Gee** | **Coordinator** | [@Gee123a](https://github.com/Gee123a) | Scope, schedule, ownership rules, docs, project setup, releases |
+| **Kenneth Jonathan Halim** (Ken) | **Frontend** (Next.js) | [@Kiyono-kouji](https://github.com/Kiyono-kouji) | Landing Page, Event Hub (`ycr`, `heart`, `ziarah`, `baksos`), Registration Form, QR E-Ticket, Event Timeline |
+| **Dave Tristian Nurcahyo** (Dave) | **Frontend** (Next.js) | [@Dave03062006](https://github.com/Dave03062006) | YCR Marketplace, Cart Drawer, QRIS/VA Payment Modal, Donation Page, Committee Admin & Gate Scanner |
+| **Sean Lawton** (Sean) | **Backend** (Supabase) | [@Sean-230](https://github.com/Sean-230) | Schema & Migrations, RLS, Committee Auth, Registration & Check-In RPCs, Timeline Data |
+| **Keane Juan Suryanto** (Keane) | **Backend** (Supabase) | [@Kenn-jpg](https://github.com/Kenn-jpg) | Marketplace Orders, 15-min Stock Reservation, Donations, Tripay/Midtrans & HMAC Webhook |
 
 ---
 
-## 2. AI-Assisted Development Documentation
+## 2. Documentation
 
-Before writing any code or prompting your AI coding assistant (Claude Code, Antigravity/Agy, Cursor, Windsurf), read these core documents in the repository root:
+Before writing code or prompting your AI coding assistant (Claude Code, Antigravity, Cursor, Windsurf):
 
-1. **[AGENTS.md](./AGENTS.md) / [CLAUDE.md](./CLAUDE.md)** — Master AI rules, strict folder ownership boundaries (zero merge conflicts), and security guardrails.
-2. **[TECH_STACK.md](./TECH_STACK.md)** — Detailed breakdown of the Next.js App Router + Supabase + Payment Gateway stack.
-3. **[PRD.md](./PRD.md)** — Functional requirements across all 5 modules (Event Hub, Registration & QR Tickets, YCR Marketplace, QRIS/VA Checkout, Committee Admin).
-4. **[ARCHITECTURE.md](./ARCHITECTURE.md)** — System architecture diagram, conflict-free directory layout, PostgreSQL ERD, and shared TypeScript/Zod contracts (`src/lib/contracts/index.ts`).
-5. **[TEAM_WORKFLOW.md](./TEAM_WORKFLOW.md)** — Parallel workstreams, Git branch conventions (`feat/fe-ken-*`, `feat/fe-dave-*`, `feat/be-sean-*`, `feat/be-keane-*`), and ready-to-paste AI prompts for each team member.
+1. **`AGENTS.md`, `CLAUDE.md`, `owners.txt`, `schedule.txt`** — *local only, not in this repository.* Master AI rules, file ownership, and the dated task list. Get your copy from Gee and put them in the repository root; they are gitignored.
+2. **[docs/PRD.md](./docs/PRD.md)** — Functional requirements for every module (Event Hub, Registration & QR Tickets, Marketplace, Checkout, Admin, Donation, Timeline).
+3. **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** — System diagram, directory layout, PostgreSQL ERD, RLS rules, and shared Zod contracts (`src/lib/contracts/`).
+4. **[docs/TECH_STACK.md](./docs/TECH_STACK.md)** — Next.js App Router + Supabase + payment gateway stack.
+5. **[docs/TEAM_WORKFLOW.md](./docs/TEAM_WORKFLOW.md)** — Tracks, integration order, branch prefixes, and ready-to-paste AI prompts per member.
