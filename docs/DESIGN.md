@@ -357,8 +357,8 @@ Kenneth builds these in `src/components/ui/` on shadcn/ui. Feature owners use th
 ## 13. Changing the design
 
 1. **Anyone** (including the committee's design team) can propose a change: post a screenshot or mockup and the reason to Dave.
-2. **Dave** decides and updates this file in a pull request on a `chore/dave-*` branch.
-3. **Kenneth** applies token or UI-kit changes in `src/app/tokens.css` and `src/components/ui/` in his own pull request.
+2. **Dave** decides and updates this file on a `chore/dave-*` branch and merges it into `main`.
+3. **Kenneth** applies token or UI-kit changes in `src/app/tokens.css` and `src/components/ui/` on his own branch.
 4. Feature owners never invent new colours, fonts, radii or shadows. If you need something the system doesn't have, ask Dave instead of hard-coding it.
 
 The design team's own direction always wins over this proposal. When they send updated colours, fonts or artwork, Dave updates the tokens here; the components follow automatically.

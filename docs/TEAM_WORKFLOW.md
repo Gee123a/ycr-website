@@ -98,15 +98,18 @@ Context for my track:
 
 ---
 
-## 4. Git & Pull Request Rules (summary — full rules in AGENTS.md)
+## 4. Git Rules (summary — full rules in AGENTS.md)
 
-1. **Never push directly to `main`.** One branch per task, named from `schedule.txt` with your prefix.
-2. **Only your files.** `owners.txt` decides; shared files get additions only. Never commit `AGENTS.md`, `CLAUDE.md`, `owners.txt`, `schedule.txt` or `.env.local`.
-3. **Pre-PR Checklist**:
-   - `npm run typecheck && npm run lint && npm run build` pass locally, and `main` is merged into your branch.
-   - If you touched `supabase/migrations/`, run `npm run db:types` and commit the updated `src/types/database.types.ts` in the same PR.
-4. **Review**: one other teammate approves before merge.
-5. **No AI attribution** in commits, PRs or issues (no `Co-Authored-By` AI trailers, no "Generated with ..." lines).
+1. **One branch per task**, named from `schedule.txt` with your prefix. Never write commits directly on `main`.
+2. **Only your files.** `owners.txt` decides; shared files get additions only. Never commit `AGENTS.md`, `CLAUDE.md`, `owners.txt`, `schedule.txt`, `plan/` or `.env.local`.
+3. **No pull requests.** When your task is ready, merge your own branch into `main` and push:
+   - First `git merge main` into your branch and fix conflicts there.
+   - `npm run typecheck && npm run lint && npm run build` pass.
+   - If you touched `supabase/migrations/`, run `npm run db:types` and commit the updated `src/types/database.types.ts` on the same branch.
+   - Then `git switch main && git pull && git merge --no-ff <branch> && git push`. If the push is rejected, `git pull` and try again; never force-push.
+   - Tell the team in the group chat what landed.
+4. **Dates are targets.** You may start a task before its date in `schedule.txt`; tentative tasks stay blocked until Gee clears them.
+5. **No AI attribution** in commits or issues (no `Co-Authored-By` AI trailers, no "Generated with ..." lines).
 6. **Environment Secrets**:
    - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are safe for browser use.
    - `SUPABASE_SERVICE_ROLE_KEY`, `PAYMENT_GATEWAY_API_KEY`, and `PAYMENT_GATEWAY_PRIVATE_KEY` must **never** be prefixed with `NEXT_PUBLIC_` or committed to Git.
