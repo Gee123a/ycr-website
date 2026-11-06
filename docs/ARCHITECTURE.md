@@ -52,7 +52,8 @@ flowchart LR
 │   ├── PRD.md                         # Product Requirements Document
 │   ├── ARCHITECTURE.md                # System Architecture & Contracts (this file)
 │   ├── TECH_STACK.md                  # Libraries & versions
-│   └── TEAM_WORKFLOW.md               # Tracks, integration order, AI prompts
+│   ├── TEAM_WORKFLOW.md               # Tracks, integration order, AI prompts
+│   └── DESIGN.md                      # [Dave] Design system ("Sunlit Highway")
 ├── supabase/
 │   ├── config.toml                    # [Sean]
 │   ├── seed.sql                       # [shared]
@@ -98,7 +99,8 @@ flowchart LR
     │   └── admin/                     # [Dave] KPIStats, OrdersTable, QRScanner
     └── app/
         ├── layout.tsx                 # [Ken]  Root layout
-        ├── globals.css                # [shared]
+        ├── globals.css                # [shared] imports tokens.css
+        ├── tokens.css                 # [Ken]  Design tokens from docs/DESIGN.md (light + dark)
         ├── (public)/                  # [Ken]  Home & KMK overview
         ├── events/                    # [Ken]  /events/[slug], /events/[slug]/register
         ├── tickets/[code]/            # [Ken]  Digital QR E-Ticket page

@@ -1,6 +1,6 @@
 # TEAM_WORKFLOW.md — AI-Assisted Development Playbook (Gee, Ken, Dave, Sean, Keane)
 
-> **How to use this file**: Each member of the PDD Website division has an isolated track, branch prefix, and ready-to-copy AI prompt. Paste your prompt into Claude Code / Antigravity / Cursor. Your agent must first read the local-only `AGENTS.md`, `owners.txt` and `schedule.txt` (get them from **Gee**), then `docs/PRD.md` and `docs/ARCHITECTURE.md`, so your code integrates cleanly with your teammates' work on the first try.
+> **How to use this file**: Each member of the PDD Website division has an isolated track, branch prefix, and ready-to-copy AI prompt. Paste your prompt into Claude Code / Antigravity / Cursor. Your agent must first read the local-only `AGENTS.md`, `owners.txt` and `schedule.txt` (get them from **Gee**), then `docs/PRD.md` and `docs/ARCHITECTURE.md` (and `docs/DESIGN.md` for any UI work), so your code integrates cleanly with your teammates' work on the first try.
 
 ---
 

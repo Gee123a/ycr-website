@@ -27,3 +27,4 @@ Before writing code or prompting your AI coding assistant (Claude Code, Antigrav
 3. **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** — System diagram, directory layout, PostgreSQL ERD, RLS rules, and shared Zod contracts (`src/lib/contracts/`).
 4. **[docs/TECH_STACK.md](./docs/TECH_STACK.md)** — Next.js App Router + Supabase + payment gateway stack.
 5. **[docs/TEAM_WORKFLOW.md](./docs/TEAM_WORKFLOW.md)** — Tracks, integration order, branch prefixes, and ready-to-paste AI prompts per member.
+6. **[docs/DESIGN.md](./docs/DESIGN.md)** — The "Sunlit Highway" design system (colours, fonts, motifs, components, accessibility), based on the official "Welcome to The Highway" poster. Read it before any UI work.

@@ -4,6 +4,7 @@
 | :--- | :--- | :--- | :--- |
 | **Frontend Framework** | **Next.js (App Router)** | v15+ / v16 (React 19, TypeScript) | **Ken** & **Dave** |
 | **Styling & UI Kit** | **Tailwind CSS + shadcn/ui** | Tailwind v4, Lucide Icons, Radix Primitives | **Ken** & **Dave** |
+| **Design System** | **"Sunlit Highway" tokens** (`docs/DESIGN.md`) | Lilita One + Nunito via `next/font`, light/dark via `prefers-color-scheme` | **Dave** (system) & **Ken** (implementation) |
 | **Client State & Forms** | **React Hook Form + Zod** | Schema-first validation + `localStorage` Cart | **Ken** & **Dave** |
 | **Backend & Database** | **Supabase (PostgreSQL)** | Managed PostgreSQL 15+ with RLS & Atomic RPCs | **Sean** & **Keane** |
 | **Authentication** | **Supabase Auth (`@supabase/ssr`)** | Cookie-based SSR Auth for Committee Admin Portal | **Sean** |
