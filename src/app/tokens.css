@@ -1,0 +1,109 @@
+:root {
+  color-scheme: light dark;
+
+  --canvas: #fff8e7;
+  --surface: #fffdf6;
+  --surface-raised: #ffffff;
+  --ink: #3b2a14;
+  --ink-2: #6b5a3e;
+  --ink-muted: #7a6a4c;
+  --line: #e8ddbf;
+  --line-strong: #d9cba3;
+  --forest: #4f6b16;
+  --forest-ink: #3e5410;
+  --on-forest: #fff8e7;
+  --leaf: #c9d86a;
+  --leaf-soft: #eef3d2;
+  --sun: #f2c230;
+  --sun-soft: #fbebb0;
+  --road: #b5520c;
+  --road-hover: #9a440a;
+  --on-road: #fff8e7;
+  --wood: #7a4a12;
+  --berry: #b3261e;
+  --berry-ink: #8c1d17;
+  --berry-soft: #f9dedb;
+  --lotus: #f6c9d6;
+  --focus: #7a4a12;
+
+  --shadow-card: 0 2px 0 var(--line), 0 6px 16px rgb(122 74 18 / 0.08);
+  --shadow-raised: 0 12px 32px rgb(122 74 18 / 0.16);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: #1c1a0e;
+    --surface: #2a2814;
+    --surface-raised: #34321a;
+    --ink: #f6efd8;
+    --ink-2: #cfc4a0;
+    --ink-muted: #a39a7c;
+    --line: #3a3720;
+    --line-strong: #55512f;
+    --forest: #b5cc5a;
+    --forest-ink: #d3e28f;
+    --on-forest: #1c1a0e;
+    --leaf: #5e7320;
+    --leaf-soft: #2f3a12;
+    --sun: #f5c842;
+    --sun-soft: #4a3d10;
+    --road: #f08a24;
+    --road-hover: #f5a04a;
+    --on-road: #2a1606;
+    --wood: #5a3a0c;
+    --berry: #f2867e;
+    --berry-ink: #f2867e;
+    --berry-soft: #4a1e1a;
+    --lotus: #e8a9bc;
+    --focus: #f5c842;
+
+    --shadow-card: 0 0 0 1px var(--line-strong);
+    --shadow-raised: 0 0 0 1px var(--line-strong);
+  }
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-forest: var(--forest);
+  --color-forest-ink: var(--forest-ink);
+  --color-on-forest: var(--on-forest);
+  --color-leaf: var(--leaf);
+  --color-leaf-soft: var(--leaf-soft);
+  --color-sun: var(--sun);
+  --color-sun-soft: var(--sun-soft);
+  --color-road: var(--road);
+  --color-road-hover: var(--road-hover);
+  --color-on-road: var(--on-road);
+  --color-wood: var(--wood);
+  --color-berry: var(--berry);
+  --color-berry-ink: var(--berry-ink);
+  --color-berry-soft: var(--berry-soft);
+  --color-lotus: var(--lotus);
+  --color-focus: var(--focus);
+
+  --font-sans: var(--font-nunito), ui-rounded, system-ui, sans-serif;
+  --font-display: var(--font-lilita), var(--font-nunito), system-ui, sans-serif;
+
+  --shadow-card: var(--shadow-card);
+  --shadow-raised: var(--shadow-raised);
+}
+
+@utility rounded-leaf {
+  border-radius: 20px 28px 22px 26px;
+}
+
+@utility display-title {
+  font-family: var(--font-display);
+  color: var(--sun);
+  -webkit-text-stroke: 2px var(--wood);
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 var(--wood);
+  letter-spacing: 0.01em;
+}
