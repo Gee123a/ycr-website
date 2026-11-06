@@ -3,6 +3,7 @@ AGENTS.md
 CLAUDE.md
 owners.txt
 schedule.txt
+plan/
 
 # Dependencies
 node_modules/
