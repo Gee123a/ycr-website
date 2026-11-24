@@ -8,6 +8,7 @@ import { updateCart, useCart, useToast } from "./cart-store";
 import { formatRupiah } from "./catalog";
 import type { CheckoutResult } from "./checkout";
 import { CheckoutForm } from "./CheckoutForm";
+import { PaymentModal } from "./PaymentModal";
 import { Sheet } from "./Sheet";
 
 const ICON_BUTTON =
@@ -52,20 +53,22 @@ export function CartDrawer({
         </span>
       </button>
 
-      {isOpen && (
-        <Sheet
-          title="Your cart"
-          placement="side"
-          onClose={() => {
+      {isOpen && session && (
+        <PaymentModal
+          session={session}
+          onClose={(isFinished) => {
             setIsOpen(false);
-            setSession(null);
+            if (isFinished) setSession(null);
           }}
-        >
-          {session ? (
-            <p role="status">
-              Order <strong>{session.orderCode}</strong> is reserved. Total {formatRupiah(session.amountTotalIdr)}.
-            </p>
-          ) : cart.length === 0 ? (
+          onRetry={() => setSession(null)}
+          onPaid={() => updateCart(() => [])}
+          paidMessage="Thank you! Show your order code when you pick up your items."
+        />
+      )}
+
+      {isOpen && !session && (
+        <Sheet title="Your cart" placement="side" onClose={() => setIsOpen(false)}>
+          {cart.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-12 text-center">
               <ShoppingBag size={40} strokeWidth={1.75} className="text-forest" aria-hidden="true" />
               <h3 className="text-xl font-extrabold">Your cart is empty</h3>
