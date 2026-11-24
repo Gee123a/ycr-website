@@ -4,6 +4,15 @@ schedule.txt
 plan/
 .claude/
 
+# Stray copies: the real ones are docs/*.md and the root plan_*.md
+/ARCHITECTURE.md
+/DESIGN.md
+/PLAYBOOK.md
+/PRD.md
+/TEAM_WORKFLOW.md
+/TECH_STACK.md
+/docs/plan_*.md
+
 # Dependencies
 node_modules/
 .pnp
