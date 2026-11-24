@@ -43,12 +43,13 @@ flowchart LR
 ## 2. Repository Directory Structure (Conflict-Free Ownership)
 
 ```text
-├── AGENTS.md                          # [LOCAL ONLY — Gee] Master AI agent rules
-├── CLAUDE.md                          # [LOCAL ONLY — Gee] Points Claude Code to AGENTS.md
-├── owners.txt                         # [LOCAL ONLY — Gee] File & task ownership
-├── schedule.txt                       # [LOCAL ONLY — Gee] Dated task list
-├── README.md                          # [shared]
+├── AGENTS.md                          # [Gee] Master AI agent rules & directory boundaries
+├── CLAUDE.md                          # [Gee] Claude Code entry pointer
+├── owners.txt                         # [Gee] File & task ownership
+├── schedule.txt                       # [Gee] Dated task list
+├── README.md                          # [shared] Repository overview & quick start
 ├── docs/                              # [Gee]
+│   ├── PLAYBOOK.md                    # Master AI-assisted development playbook
 │   ├── PRD.md                         # Product Requirements Document
 │   ├── ARCHITECTURE.md                # System Architecture & Contracts (this file)
 │   ├── TECH_STACK.md                  # Libraries & versions
