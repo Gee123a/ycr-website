@@ -10,11 +10,12 @@
 - **Email**: `slawton01@student.ciputra.ac.id` | **GitHub**: [@Sean-230](https://github.com/Sean-230)
 - **Branch Prefix**: `feat/be-sean-*`
 - **Primary Deliverables**:
-  1. Supabase PostgreSQL migrations for events, ticket tiers, registrations, timeline, and rundown.
-  2. Row Level Security (RLS) policies and Committee Admin authentication middleware.
+  1. Supabase PostgreSQL migrations for events, ticket tiers, registrations, timeline milestones, and rundown sessions.
+  2. Row Level Security (RLS) policies and Committee Admin authentication middleware (`src/middleware.ts`).
   3. Atomic PostgreSQL RPC `register_participant` (quota locking with `SELECT ... FOR UPDATE`).
   4. QR check-in verification RPC `verify_and_checkin_ticket`.
-  5. Server Actions / query services for events, registrations, timeline, and admin metrics.
+  5. Timeline data API endpoint (`src/app/api/timeline/route.ts`) returning `EventTimelineResponse`.
+  6. Server Actions / query services for events, registrations, timeline data, and admin metrics.
 
 ### Allowed Files & Directories (READ & WRITE)
 - `supabase/migrations/0001_events_and_tickets.sql`
@@ -24,21 +25,23 @@
 - `supabase/seed.sql`
 - `src/lib/supabase/` (`client.ts`, `server.ts`, `admin.ts`)
 - `src/middleware.ts` (Admin auth guard)
+- `src/app/api/timeline/route.ts` (Timeline API endpoint)
 - `src/services/events.service.ts`
 - `src/services/registrations.service.ts`
 - `src/services/timeline.service.ts`
 - `src/services/admin.service.ts`
 
 ### Strictly Forbidden (DO NOT READ OR MODIFY)
-- `src/app/**` *(Owned by Ken & Dave — Frontend)*
-- `src/components/**` *(Owned by Ken & Dave — Frontend)*
+- `src/app/(public)/**`, `src/app/marketplace/**`, `src/app/admin/**` *(Owned by Ken & Dave)*
+- `src/components/**` *(Owned by Ken & Dave)*
 - `supabase/migrations/0002_*`, `0005_*` *(Owned by Keane — Marketplace & Orders)*
 - `src/services/orders.service.ts`, `src/services/payments.service.ts`, `src/app/api/webhooks/**` *(Owned by Keane)*
 
 ### Context Files to Read (Minimal Token Load)
-1. `src/lib/contracts/events.contract.ts`
-2. `src/lib/contracts/timeline.contract.ts`
-3. `docs/ARCHITECTURE.md` (Sections 3 & 5: Database Schema ERD, RLS matrix, and RPC patterns)
+1. `src/lib/contracts/timeline.contract.ts` (`TimelineMilestone`, `RundownSession`, `EventTimelineResponse`)
+2. `src/lib/contracts/registration.contract.ts` (Registration data contract)
+3. `src/lib/contracts/events.contract.ts`
+4. `docs/ARCHITECTURE.md` (Sections 3 & 5: Database Schema ERD, RLS matrix, and RPC patterns)
 
 ---
 
@@ -72,11 +75,16 @@
 - [ ] **Task 4: Timeline & Rundown Migrations (`0004_event_timeline.sql`, `0006_event_rundown.sql`)**
   - [ ] Create `event_milestones` table (`id`, `title`, `date_label`, `description`, `status`, `sort_order`).
   - [ ] Create `event_sessions` table (`id`, `event_id`, `time_start`, `time_end`, `title`, `speaker`, `is_tentative`).
+  - [ ] Seed milestone data for Baksos, Ziarah, Webinar, YCR.
 
-- [ ] **Task 5: Server Action Services (`src/services/`)**
+- [ ] **Task 5: Timeline Data API Route & Service (`src/app/api/timeline/route.ts`, `src/services/timeline.service.ts`)**
+  - [ ] Implement `src/services/timeline.service.ts` to query chronological milestones and rundown sessions from Supabase.
+  - [ ] Implement `src/app/api/timeline/route.ts` (`GET /api/timeline`) returning payload formatted according to `EventTimelineResponse` (`eventSlug`, `milestones`, `rundown`).
+  - [ ] Ensure milestones return correct chronological status (`PAST`, `NOW`, `UPCOMING`) and rundown sessions include start/end times, speakers, and locations.
+
+- [ ] **Task 6: Server Action & Admin Services (`src/services/`)**
   - [ ] `events.service.ts`: Query active events, ticket tiers, and remaining quotas.
   - [ ] `registrations.service.ts`: Wrap `register_participant` and `verify_and_checkin_ticket`.
-  - [ ] `timeline.service.ts`: Fetch chronological milestones matching `EventTimelineResponse`.
   - [ ] `admin.service.ts`: Aggregate dashboard KPIs and generate CSV export query.
 
 ---

@@ -4,79 +4,97 @@
 | :--- | :--- |
 | **Organization** | UKM Keluarga Mahasiswa Katolik (KMK) — Universitas Ciputra |
 | **Division** | PDD Website (Production, Documentation, and Development) |
-| **Events Covered** | **Youth Catholic Revival (YCR — "The Highway")**, **Heart**, **Ziarah**, **Baksos** |
-| **Coordinator** | **Gee** — oversees all tracks, owns scope, schedule and ownership rules |
-| **Frontend Team** | **Ken** (Kenneth Jonathan Halim), **Dave** (Dave Tristian Nurcahyo) — *Next.js* |
-| **Backend Team** | **Sean** (Sean Lawton), **Keane** (Keane Juan Suryanto) — *Supabase* |
+| **Events Covered** | **Baksos**, **Ziarah**, **Webinar**, **Youth Catholic Revival (YCR — "The Highway")** |
+| **Coordinator** | **Gee** — oversees all tracks, owns scope, schedule, and ownership rules |
+| **Frontend Team** | **Ken** (FE-1: Timeline Bar & Homepage), **Dave** (FE-2: Registration Form & Admin) — *Next.js* |
+| **Backend Team** | **Sean** (BE-1: Schema, Auth, Events & Timeline), **Keane** (BE-2: Orders, Payments & Webhooks) — *Supabase* |
 | **Target Scale** | 50 Concurrent Users / 100 Peak Concurrent Users (85%+ Mobile Traffic) |
 
 ---
 
 ## 1. Product Vision & Scope
 
-Build a unified, mobile-first web platform (`*.site`) for UKM KMK Universitas Ciputra that serves **Youth Catholic Revival ("The Highway")** as its flagship event while hosting sub-pages/registration flows for **Heart**, **Ziarah**, and **Baksos** at zero additional hosting cost.
+Build a streamlined, mobile-first web platform (`*.site`) for UKM KMK Universitas Ciputra. Under the updated product direction, the public website is simplified to **essentially ONE main page (`/`)**, delivering a high-focus visitor experience:
 
-Visitors can: **sign up for an event** (and receive a QR e-ticket), **buy YCR merch**, **donate**, and **view the event timeline**.
+1. **Sticky Timeline Bar**: Always visible at the top of the viewport, guiding visitors through the sequence of KMK events (**Baksos**, **Ziarah**, **Webinar**, **YCR**) and transitioning automatically into the D-Day event rundown.
+2. **Context-Aware Registration Form**: The single, unified form on the website that automatically adapts to the current date—presenting either the **Webinar** registration or the **YCR** registration (with individual/group toggles and live tiered pricing).
 
-The platform solves these core operational bottlenecks:
-1. **Manual Registration & Line Bottlenecks**: Replaces manual Google Forms + manual bank transfer screenshot checking with instant QRIS/Virtual Account payment verification and automated QR E-Ticket issuance.
-2. **YCR Marketplace & Merch Pre-Orders**: Provides an integrated online storefront for YCR merchandise, food/beverage bundles, and event kits with real-time stock locking.
-3. **Real-Time Committee Operations**: Gives committee members a live dashboard to track registrations, verify payments, and scan participant QR codes at the venue gate.
-4. **Online Donations**: Replaces manual transfer-and-screenshot donations with QRIS/VA donations confirmed automatically by the payment webhook.
+### Route Architecture
+- **`/` (Main Homepage)**: Contains the Sticky Timeline Bar and the Context-Aware Registration Form.
+- **`/admin` & `/admin/scan`**: Dedicated committee portal for registration tracking, KPIs, CSV export, and gate QR check-in (Dave's work is complete and preserved).
+- **`/marketplace`**: Kept as a **placeholder / stub route** for a future separate project (not discussed yet).
+- **`/donate` (DELETED)**: Donations are removed from this website and will be handled by the marketplace website. No donation forms, buttons, or donation routes exist on this site. (The backend Zod schema is retained for backend engineering).
 
 ---
 
 ## 2. Core Functional Modules & Ownership
 
-### Module A: Public Event Hub & Landing Pages (`Owner: Ken [FE] + Sean [BE]`)
-- **YCR "The Highway" Flagship Landing Page**:
-  - Hero section with countdown timer, event theme story, guest speakers/worship leaders, a short "key dates" preview linking to `/timeline`, venue map, and FAQ accordion.
-- **Multi-Event Sub-Routes**:
-  - `/events/ycr` — Youth Catholic Revival ("The Highway")
-  - `/events/heart` — Heart participant registration
-  - `/events/ziarah` — Ziarah registration & itinerary
-  - `/events/baksos` — Baksos landing page & volunteer form; its "Donate" button links to `/donate?campaign=baksos` (Module F)
+### Module A: Sticky Timeline Bar (`Owner: Ken [FE] + Sean [BE]`)
+- **Pinned Top Bar**:
+  - Full-width horizontal bar pinned at the top of the homepage (sticky on scroll).
+  - A connecting progress line links circular nodes horizontally from left to right.
+  - Chronological event sequence: **Baksos** $\rightarrow$ **Ziarah** $\rightarrow$ **Webinar** $\rightarrow$ **YCR**.
+- **Node Visual States**:
+  - `PAST`: Filled green circle indicating completed milestones.
+  - `NOW`: Pulsing gold circle highlighting the currently active milestone.
+  - `UPCOMING`: Hollow circle with border for future events.
+- **Interactive States**:
+  - **Hover**: Tooltip with a 1-line summary displaying event title and date.
+  - **Click**: Modal popup (`TimelineModal.tsx`) showing full event details (title, date, venue, description).
+- **D-Day Mode (Automatic Switch)**:
+  - On and after YCR's event date (auto-detected at midnight by `Date.now() >= YCR_DATE_MIDNIGHT`), the timeline automatically transitions from the 4-event milestones to the **YCR Rundown**.
+  - Reuses the same visual horizontal bar, node styling, and interactions, but node data switches to session-by-session schedule items (showing session title, speaker, time, and location).
 
-### Module B: Event Registration & QR E-Ticketing (`Owner: Ken [FE] + Sean [BE]`)
-- **Participant Registration Flow**:
-  - Collects full name, NIM / institution, WhatsApp number, email, ticket tier (Early Bird / Regular / VIP / Bundle), and dietary/medical notes.
-  - Supports both **Free Events** (instant confirmation) and **Paid Events** (creates `PENDING` registration and triggers payment flow).
-- **Digital E-Ticket**:
-  - Once status becomes `PAID`, generates a unique signed ticket token (`ticket_code`) rendered as a downloadable/scannable QR code on `/tickets/[ticketCode]`.
-  - Participants can look up their ticket anytime via email/WhatsApp + order reference.
+### Module B: Context-Aware Registration Form (`Owner: Dave [FE] + Sean/Keane [BE]`)
+- **Single Form on Site**:
+  - Positioned prominently on the homepage below the Sticky Timeline Bar.
+  - Context-aware rendering driven by date thresholds:
+    - **Before `YCR_OPENS_AT`**: Displays the **Webinar** registration form.
+    - **On/After `YCR_OPENS_AT`**: Displays the **YCR ("The Highway")** registration form.
+    - *(Dates are defined as centralized constants, updatable without breaking layout).*
+- **Webinar Registration Form**:
+  - Individual participant registration only.
+  - Fields: Full Name, Email, WhatsApp number.
+- **YCR Registration Form**:
+  - Pill selector toggle between **Individual** and **Group** registration.
+  - **Individual Mode**:
+    - Fields: Full Name, Email, WhatsApp number.
+  - **Group Mode**:
+    - Leader row: Full Name, Email, WhatsApp number.
+    - "Add Member" button dynamically appends member rows (Full Name, Email, WhatsApp each).
+    - Remove button (`×`) on each additional member row.
+  - **Live Tiered Price Summary**:
+    - Positioned at the bottom of the YCR registration form.
+    - 1–4 participants: Rp 150.000 / person (placeholder standard rate).
+    - 5–9 participants: Rp 135.000 / person — 10% discount (placeholder).
+    - $\ge$ 10 participants: Rp 120.000 / person — 20% discount (placeholder).
+    - Live subtotal, discount, and grand total recalculate dynamically as members are added or removed.
 
-### Module C: YCR Marketplace (`Owner: Dave [FE] + Keane [BE]`)
-- **Product Catalog**:
-  - Displays official YCR merchandise (t-shirts, totebags, lanyards, stickers) and F&B/donation bundles with variants (sizes S/M/L/XL) and live stock counts.
-- **Cart & Atomic Stock Reservation**:
-  - Client-side persistent cart drawer with instant total calculation.
-  - On checkout submission, backend atomically checks and reserves stock inside a PostgreSQL transaction/RPC (`create_marketplace_order`) for 15 minutes while awaiting payment.
+### Module C: YCR Marketplace (`Owner: Dave [FE] + Keane [BE]`) — Placeholder
+- `/marketplace` route is preserved as a placeholder/stub for a future separate project.
+- Merch pre-orders, cart drawer, and catalog are out of scope for the current single-page website and deferred to the future marketplace project.
 
 ### Module D: Payment Gateway & Webhook Engine (`Owner: Dave [FE] + Keane [BE]`)
-- **Embedded Checkout (QRIS & Virtual Account)**:
-  - Integrates **Tripay** or **Midtrans Snap** so participants scan QRIS or copy a Virtual Account number directly inside a popup/modal on the website without leaving the domain.
-  - Displays a 15-minute countdown timer and polls/subscribes via Supabase Realtime to `orders.payment_status`.
+- **Embedded Payment Modal**:
+  - Handles payment for paid YCR registrations via **Tripay** or **Midtrans Snap** (QRIS & Virtual Accounts).
+  - Displays dynamic payment instructions and listens for Supabase Realtime payment confirmation.
 - **Server-to-Server Webhook (`POST /api/webhooks/payment`)**:
-  - Verifies cryptographic HMAC signature from the payment gateway.
-  - Transitions order/registration status (`PENDING` $\rightarrow$ `PAID` | `EXPIRED` | `FAILED`).
-  - If `EXPIRED` or `FAILED`, automatically releases reserved stock back to inventory.
+  - Verifies cryptographic HMAC-SHA256 signature from the payment gateway.
+  - Transitions order/registration status from `PENDING` $\rightarrow$ `PAID` | `EXPIRED` | `FAILED`.
+  - On `PAID`, marks all registered members as confirmed and generates scannable ticket codes.
 
 ### Module E: Committee Admin & Gate Scanner (`Owner: Dave [FE] + Sean/Keane [BE]`)
+*(Dave's implementation is complete and preserved as-is).*
 - **Role-Protected `/admin` Portal** (Supabase Auth):
-  - Overview KPI cards: Total Revenue, Tickets Sold per Tier, Merch Orders, Checked-In Count.
-  - Filterable table of participants & marketplace orders with **1-Click CSV/Excel Export**.
-  - Mobile camera **QR Code Scanner** (`/admin/scan`) for D-Day gate check-in with instant duplicate-scan detection (`ALREADY_CHECKED_IN` warning).
+  - Overview KPI cards: Total Registrations (Webinar & YCR), Revenue, Checked-In Count.
+  - Filterable table of registered participants with **1-Click CSV/Excel Export**.
+- **Mobile Camera QR Scanner (`/admin/scan`)**:
+  - Real-time mobile gate check-in for committee members with instant duplicate scan detection (`ALREADY_CHECKED_IN` warning).
 
-### Module F: Donation Page (`Owner: Dave [FE] + Keane [BE]`)
-- **`/donate` page** with a campaign selector (`ycr` | `baksos`, preselected via `?campaign=`), preset and custom amounts, donor name, email, WhatsApp, an optional message, and an "anonymous" toggle.
-- Reuses the **embedded QRIS/VA payment modal** from Module D. A donation creates an `orders` row with `order_type = 'DONATION'` plus a `donations` row; only the verified webhook marks it `PAID`.
-- After payment: a thank-you screen with the order code. No stock or quota is involved.
-- Committee admin sees donation totals per campaign on the dashboard (Module E).
-- *Open decision (Gee / committee)*: minimum donation amount and whether a public donor list or progress bar is shown.
-
-### Module G: Event Timeline & Rundown (`Owner: Ken [FE] + Sean [BE]`)
-- **`/timeline` page (confirmed)**: the YCR event timeline as a vertical, mobile-first list of milestones (e.g. registration opens, Early Bird ends, registration closes, merch pre-order closes, event day), each with date/time, title, short description and a "past / now / upcoming" state. Data comes from the `event_milestones` table so the committee can change dates without a deploy.
-- **Event-day rundown (tentative)**: sessions, speakers/worship leaders and times for the event day, stored in `event_sessions`. The content is **waiting on approval from the KMK leadership**; the timeline page leaves a section for it, but no rundown work starts until its task in `schedule.txt` is no longer marked `(tentative)`.
+### Module F: Donations (Backend Only / Externalized)
+- **`/donate` UI route, donation form, and all donation buttons are completely deleted from this website.**
+- Public donations will be handled by the external marketplace website.
+- The `donations.contract.ts` schema and backend database tables are retained in the codebase for Keane's backend engineering, but are not exposed anywhere in the frontend UI.
 
 ---
 
@@ -84,8 +102,9 @@ The platform solves these core operational bottlenecks:
 
 | Category | Requirement |
 | :--- | :--- |
-| **Performance** | First Contentful Paint (FCP) < 1.5s on 4G mobile; API/RPC p95 latency < 300ms under 100 peak concurrent users. |
-| **Payments** | Tickets, merch and donations share one order + webhook pipeline; amounts are integer rupiah. |
-| **Concurrency & Stock** | Zero overselling on limited-stock merch or Early Bird ticket quotas (enforced via PostgreSQL row-level locking `FOR UPDATE`). |
-| **Security** | Supabase RLS enabled on all tables; payment status can only be mutated by verified HMAC webhook using service-role client. |
-| **Reliability** | Idempotent webhook processing; graceful fallback UI if payment gateway sandbox/production endpoint is slow. |
+| **Performance** | First Contentful Paint (FCP) < 1.5s on 4G mobile; initial page weight optimized for single-page scroll. |
+| **Responsiveness** | Mobile-first architecture (85%+ mobile visitors), minimum 44×44px touch targets on timeline nodes and form buttons. |
+| **Data Integrity** | Zod contract validation on both client and server; live group pricing calculations synchronized between UI and backend. |
+| **Concurrency** | Row-level locking (`SELECT ... FOR UPDATE`) in PostgreSQL RPCs to prevent overselling quotas during peak registration windows. |
+| **Security** | Supabase Row Level Security (RLS) on all tables; payment status mutations restricted to verified HMAC webhooks. |
+| **Reliability** | Idempotent webhook handling; fallback states for offline or degraded payment gateway connections. |
