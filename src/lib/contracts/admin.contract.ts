@@ -30,6 +30,17 @@ export interface AdminOrder {
   createdAt: string;
 }
 
+// Gate check-in (Sean BE -> Dave FE)
+export type CheckInResult =
+  | { status: "NOT_FOUND" }
+  | {
+      status: "CHECKED_IN" | "ALREADY_CHECKED_IN";
+      fullName: string;
+      eventSlug: EventSlug;
+      tierName: string;
+      checkedInAt: string;
+    };
+
 export interface AdminDashboardResponse {
   participants: AdminParticipant[];
   orders: AdminOrder[];
