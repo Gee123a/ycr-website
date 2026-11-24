@@ -10,23 +10,30 @@ To guarantee zero merge conflicts and preserve modularity, every agent and team 
 
 | Member | Role | Student Email | GitHub | Primary Scope & Directories |
 | :--- | :--- | :--- | :--- | :--- |
-| **Gee** | **Coordinator** | `ssantoso04@student.ciputra.ac.id` | [@Gee123a](https://github.com/Gee123a) | Scope, schedule, docs, repo setup, releases, shared contracts lock |
-| **Ken** (Kenneth Jonathan Halim) | **Frontend** (Next.js) | `kjonathan08@student.ciputra.ac.id` | [@Kiyono-kouji](https://github.com/Kiyono-kouji) | **Track FE-1**: Sticky Timeline Bar, Homepage Assembly (`/`), site layout<br>• `src/app/(public)/`, `src/app/page.tsx`<br>• `src/components/timeline/` (`TimelineBar.tsx`, `TimelineModal.tsx`, `mock-timeline.ts`), `src/components/layout/`, `src/components/ui/` |
-| **Dave** (Dave Tristian Nurcahyo) | **Frontend** (Next.js) | `dtristian@student.ciputra.ac.id` | [@Dave03062006](https://github.com/Dave03062006) | **Track FE-2**: Context-Aware Registration Form, Admin Dashboard, Gate Scanner, Marketplace Stub<br>• `src/components/registration/` (`RegistrationForm.tsx`, `WebinarForm.tsx`, `YcrForm.tsx`, `PriceSummary.tsx`)<br>• `src/app/admin/`, `src/components/admin/` (Complete)<br>• `src/app/marketplace/`, `src/components/marketplace/` (Placeholder stub)<br>• `src/app/mock-registration.ts` |
-| **Sean** (Sean Lawton) | **Backend** (Supabase) | `slawton01@student.ciputra.ac.id` | [@Sean-230](https://github.com/Sean-230) | **Track BE-1**: PostgreSQL Schema & Migrations (`0001`, `0003`, `0004`, `0006`), RLS Policies, Auth Middleware, Timeline Service, Check-In Verification RPC, Admin Reporting<br>• `supabase/migrations/0001*`, `0003*`, `0004*`, `0006*`<br>• `src/lib/supabase/`, `src/middleware.ts`<br>• `src/services/events.service.ts`, `src/services/timeline.service.ts`, `src/services/admin.service.ts`, `src/services/registrations.service.ts`<br>• `src/app/api/timeline/route.ts` |
-| **Keane** (Keane Juan Suryanto) | **Backend** (Supabase) | `ksuryanto@student.ciputra.ac.id` | [@Kenn-jpg](https://github.com/Kenn-jpg) | **Track BE-2**: PostgreSQL Schema & Migrations (`0002`, `0005`), Orders Engine, Atomic Group Registration RPC, Tripay/Midtrans Gateway & HMAC Webhook, Backend Donations<br>• `supabase/migrations/0002*`, `0005*`<br>• `src/services/orders.service.ts`, `src/services/payments.service.ts`, `src/services/donations.service.ts`<br>• `src/app/api/webhooks/payment/route.ts` |
+| **Gee** | **Coordinator** | `ssantoso04@student.ciputra.ac.id` | [@Gee123a](https://github.com/Gee123a) | Scope, schedule, docs, repo setup, releases, shared constants (`src/lib/constants.ts`), shared contracts lock |
+| **Ken** (Kenneth Jonathan Halim) | **Frontend** (Next.js) | `kjonathan08@student.ciputra.ac.id` | [@Kiyono-kouji](https://github.com/Kiyono-kouji) | **Track FE-1**: Expanding Timeline Bar, D-Day Hero Showcase Centerpiece, Homepage Assembly (`/`), site layout<br>• `src/app/(public)/`, `src/app/page.tsx`<br>• `src/components/timeline/` (`TimelineBar.tsx`, `TimelineModal.tsx`, `mock-timeline.ts`), `src/components/layout/`, `src/components/ui/` |
+| **Dave** (Dave Tristian Nurcahyo) | **Frontend** (Next.js) | `dtristian@student.ciputra.ac.id` | [@Dave03062006](https://github.com/Dave03062006) | **Track FE-2**: Context-Aware Paid Registration Form, Official Merchandise Store (`/marketplace`), Admin Dashboard, Gate Scanner<br>• `src/components/registration/` (`RegistrationForm.tsx`, `WebinarForm.tsx`, `YcrForm.tsx`, `PriceSummary.tsx`)<br>• `src/app/marketplace/`, `src/components/marketplace/` (Active first-class merch store — Retained & Complete)<br>• `src/app/admin/`, `src/components/admin/` (Complete)<br>• `src/app/mock-registration.ts` |
+| **Sean** (Sean Lawton) | **Backend** (Supabase) | `slawton01@student.ciputra.ac.id` | [@Sean-230](https://github.com/Sean-230) | **Track BE-1**: PostgreSQL Schema & Migrations (`0001`, `0003`, `0004`, `0006`), RLS Policies, Auth Middleware, Timeline Service & API Route, Check-In Verification RPC, Admin Reporting<br>• `supabase/migrations/0001*`, `0003*`, `0004*`, `0006*`<br>• `src/lib/supabase/`, `src/middleware.ts`<br>• `src/services/events.service.ts`, `src/services/timeline.service.ts`, `src/services/admin.service.ts`, `src/services/registrations.service.ts`<br>• `src/app/api/timeline/route.ts` |
+| **Keane** (Keane Juan Suryanto) | **Backend** (Supabase) | `ksuryanto@student.ciputra.ac.id` | [@Kenn-jpg](https://github.com/Kenn-jpg) | **Track BE-2**: PostgreSQL Schema & Migrations (`0002`, `0005`), Orders Engine, Atomic Group Registration RPC, Tripay/Midtrans Gateway & HMAC Webhook, Merch Orders & Backend Donations<br>• `supabase/migrations/0002*`, `0005*`<br>• `src/services/orders.service.ts`, `src/services/payments.service.ts`, `src/services/donations.service.ts`<br>• `src/app/api/webhooks/payment/route.ts` |
 
 ---
 
 ## 2. Shared Contracts & Single Source of Truth
 
+- **Shared Constants (`src/lib/constants.ts`)**:
+  - The **single source of truth** for all dates, base pricing, and group discount percentages:
+    - `YCR_OPENS_AT`, `YCR_DATE_MIDNIGHT`
+    - `PRICE_WEBINAR_IDR = 50_000`
+    - `PRICE_YCR_INDIVIDUAL_IDR = 150_000`
+    - `DISCOUNT_TIER_5 = 0.10` (10%)
+    - `DISCOUNT_TIER_10 = 0.20` (20%)
 - **Contracts Directory**: `src/lib/contracts/` is the strict contract layer between Frontend and Backend.
-  - `common.contract.ts` — Shared field validators (Indonesian WhatsApp regex, payment method enum).
-  - `registration.contract.ts` — Reusable member schema (`MemberSchema`), webinar registration (`CreateWebinarRegistrationSchema`), YCR individual registration (`CreateYcrRegistrationSchema`), and YCR group registration (`CreateYcrGroupSchema`).
-  - `timeline.contract.ts` — Milestone & session rundown schemas (`TimelineMilestone`, `RundownSession`, `EventTimelineResponse`), reused for the Sticky Timeline Bar.
-  - `marketplace.contract.ts` — Product and order schemas (placeholder for future project).
-  - `donations.contract.ts` — Retained for backend use only; not exported for frontend UI use.
-  - `payments.contract.ts` — Unified checkout modal contract (`CheckoutSessionResponse`).
+  - `common.contract.ts` — Shared field validators (Indonesian WhatsApp regex, payment method enum `PaidMethodSchema`).
+  - `registration.contract.ts` — Member schema (`MemberSchema` with optional `nimOrInstitution`), paid webinar registration (`CreateWebinarRegistrationSchema` with `member` and `paymentMethod`), paid YCR individual registration (`CreateYcrRegistrationSchema` with `member` and `paymentMethod`), and paid YCR group registration (`CreateYcrGroupSchema` with `members` array and `paymentMethod`).
+  - `timeline.contract.ts` — Milestone & session rundown schemas (`TimelineMilestone`, `RundownSession`, `EventTimelineResponse`), reused for both the pre-D-Day timeline bar and the expanded D-Day hero stage.
+  - `marketplace.contract.ts` — Product, variant, and merch order schemas (active contract for `/marketplace`).
+  - `donations.contract.ts` — Retained for backend use; not exposed as a standalone frontend route.
+  - `payments.contract.ts` — Unified checkout response contract (`CheckoutSessionResponse`).
   - `admin.contract.ts` — Committee dashboard KPIs, table models, and export schemas.
 - **Database Types**: `src/types/database.types.ts` is auto-generated via `npm run db:types`. Never manually edit generated types.
 
@@ -36,14 +43,23 @@ To guarantee zero merge conflicts and preserve modularity, every agent and team 
 
 1. **Design System Adherence**:
    - Every UI component built by Ken or Dave must strictly consume CSS variables defined in `src/app/tokens.css` and follow `docs/DESIGN.md` ("Sunlit Highway" design tokens: Sunlit Gold, Desert Amber, Highway Blue, Lilita One headings, Nunito body).
-2. **Single-Page Homepage Architecture (`/`)**:
-   - **Sticky Timeline Bar**: Pinned full-width bar at top of page, connecting milestone nodes (Baksos, Ziarah, Webinar, YCR) with states `PAST` (green), `NOW` (pulsing gold), `UPCOMING` (hollow). Hover triggers tooltip; click opens `TimelineModal`. On/after YCR date midnight (`Date.now() >= YCR_DATE_MIDNIGHT`), automatically switches to the YCR session rundown.
-   - **Context-Aware Registration Form**: The only form on the site. Automatically renders Webinar registration before `YCR_OPENS_AT` date and YCR registration on/after `YCR_OPENS_AT`. YCR form supports Individual/Group toggle with dynamic member rows and live volume discount calculations (1–4: Rp 150k, 5–9: 10% off, $\ge$10: 20% off).
-   - **No Donation UI**: The `/donate` route and donation components have been removed. Public donations are handled by the marketplace site.
-   - **Marketplace**: `/marketplace` remains a placeholder/stub for a future project.
+2. **Website Architecture**:
+   - **Main Event Landing (`/`)**:
+     - **Expanding Timeline Bar & D-Day Hero Stage**:
+       - *Pre-D-Day*: Pinned full-width bar at top of page, connecting milestone nodes (Baksos, Ziarah, Webinar, YCR) with states `PAST` (green), `NOW` (pulsing gold), `UPCOMING` (hollow). Hover triggers tooltip; click opens `TimelineModal`.
+       - *On D-Day (`Date.now() >= YCR_DATE_MIDNIGHT` via `src/lib/constants.ts`)*: Automatically expands significantly from a simple top bar into the **primary visual hero focus of the page** (an expanded live Rundown Showcase stage with prominent session cards, live time indicator, speakers, and room locations). The registration form steps down into a secondary role (or displays "Registration Closed / Today's Live Event").
+     - **Context-Aware Paid Registration Form**:
+       - Automatically renders Webinar registration before `YCR_OPENS_AT` and YCR registration on/after `YCR_OPENS_AT`.
+       - **Both Webinar and YCR are PAID events** that require payment method selection (`PaidMethodSchema`) and trigger checkout sessions via the payment gateway.
+       - `nimOrInstitution` is optional in `MemberSchema`.
+       - YCR form supports Individual/Group toggle with dynamic member rows and live volume discount calculations from `src/lib/constants.ts` (1–4: Rp 150k, 5–9: 10% off, $\ge$10: 20% off).
+   - **Official Merchandise Store (`/marketplace`)**:
+     - **Retained and active first-class page** in this repository. Dave's completed merch catalog, persistent cart drawer (`CartDrawer.tsx`), and checkout payment modal (`PaymentModal.tsx`) are preserved and celebrated.
+   - **No Standalone Donation UI**:
+     - The `/donate` route and donation UI components have been removed. Public donations will eventually merge into the marketplace flow.
 3. **Next.js App Router Architecture**:
    - Default to **React Server Components (RSC)** for data fetching (`src/app/**`).
-   - Add `'use client'` **only** at leaf interactive components (forms, timeline interactive bar/modal, payment modal, QR scanner).
+   - Add `'use client'` **only** at leaf interactive components (forms, timeline interactive bar/modal, payment modal, cart drawer, QR scanner).
    - Never import `src/lib/supabase/admin.ts` (service-role key) into client components or client bundles.
 4. **Database Security & Concurrency**:
    - All PostgreSQL tables in Supabase **must** have Row Level Security (`ENABLE ROW LEVEL SECURITY`) turned on.

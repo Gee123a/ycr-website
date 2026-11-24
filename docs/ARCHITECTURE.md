@@ -1,6 +1,6 @@
 # ARCHITECTURE.md — Next.js + Supabase System Design & Contracts
 
-> **Purpose**: Defines the directory structure, database schema (PostgreSQL/Supabase), Row Level Security (RLS) rules, and TypeScript/Zod contracts shared between **Frontend (Ken & Dave)** and **Backend (Sean & Keane)** under the unified single-page architecture.
+> **Purpose**: Defines the directory structure, database schema (PostgreSQL/Supabase), Row Level Security (RLS) rules, shared constants, and TypeScript/Zod contracts shared between **Frontend (Ken & Dave)** and **Backend (Sean & Keane)** under the unified web platform architecture.
 
 ---
 
@@ -9,15 +9,16 @@
 ```mermaid
 flowchart LR
     subgraph Client["Client Browser (85%+ Mobile)"]
-        FE_Public["Next.js Homepage (/)\n• Sticky Timeline Bar (Ken)\n• Context-Aware Reg Form (Dave)"]
+        FE_Public["Next.js Homepage (/)\n• Expanding Timeline Bar / D-Day Hero (Ken)\n• Context-Aware Paid Reg Form (Dave)"]
+        FE_Market["Next.js Marketplace (/marketplace)\n• Official Merch Catalog & Cart (Dave - Retained)"]
         FE_Admin["Next.js Admin & Scanner (/admin, /admin/scan)\n(Dave - Complete)"]
-        FE_Market["Next.js Marketplace Placeholder (/marketplace)\n(Future Separate Project)"]
     end
 
     subgraph NextServer["Next.js App Router Server"]
         RSC["Server Components & Server Actions\n(Sean & Keane)"]
         TimelineAPI["GET /api/timeline\n(Sean)"]
         Webhook["POST /api/webhooks/payment\nHMAC Signature Verifier (Keane)"]
+        Constants["src/lib/constants.ts\nDates & Pricing Source of Truth"]
     end
 
     subgraph Supabase["Supabase Backend (Sean & Keane)"]
@@ -31,11 +32,13 @@ flowchart LR
     end
 
     FE_Public --> RSC
+    FE_Market --> RSC
     FE_Admin --> RSC
     RSC --> DB
     FE_Public <--> RT
+    FE_Market <--> RT
     FE_Public --> TimelineAPI
-    RSC -->|"1. Create Registration Order"| QRIS
+    RSC -->|"1. Create Registration / Merch Order"| QRIS
     QRIS -->|"2. Server Webhook (HMAC)"| Webhook
     Webhook -->|"3. Service Role Update"| DB
     DB -->|"4. Broadcast PAID"| RT
@@ -71,14 +74,15 @@ flowchart LR
     ├── types/
     │   └── database.types.ts          # [shared, generated] `npm run db:types` only
     ├── lib/
+    │   ├── constants.ts               # [SHARED] Dates, pricing, discount tiers (Single Source of Truth)
     │   ├── contracts/                 # [SHARED CONTRACT LAYER — Read before coding]
     │   │   ├── index.ts               # Re-exports active contracts
     │   │   ├── common.contract.ts     # Shared field schemas (WhatsApp, payment methods)
-    │   │   ├── registration.contract.ts # [NEW] Dave ↔ Sean/Keane (Webinar, YCR Indiv/Group)
+    │   │   ├── registration.contract.ts # [NEW] Dave ↔ Sean/Keane (Webinar, YCR Indiv/Group — Both Paid)
     │   │   ├── timeline.contract.ts   # Ken ↔ Sean (Milestones & D-Day Rundown)
     │   │   ├── admin.contract.ts      # Dave ↔ Sean (Dashboard KPIs & reporting)
-    │   │   ├── marketplace.contract.ts# Dave ↔ Keane (Placeholder contract)
-    │   │   ├── donations.contract.ts  # Keane (Retained for backend use; unused on FE)
+    │   │   ├── marketplace.contract.ts# Dave ↔ Keane (Merch products, variants, orders)
+    │   │   ├── donations.contract.ts  # Keane (Retained for backend use; unused on standalone FE)
     │   │   └── payments.contract.ts   # All (CheckoutSessionResponse)
     │   └── supabase/                  # [Sean]
     │       ├── client.ts              # Browser client (@supabase/ssr)
@@ -95,17 +99,18 @@ flowchart LR
     ├── components/
     │   ├── ui/                        # [Ken]  Shared shadcn/ui primitives
     │   ├── layout/                    # [Ken]  Root layout, sticky header container, footer
-    │   ├── timeline/                  # [Ken]  Sticky Timeline Bar (TimelineBar.tsx, TimelineModal.tsx, mock-timeline.ts)
+    │   ├── timeline/                  # [Ken]  TimelineBar.tsx, TimelineModal.tsx, D-Day Rundown Hero, mock-timeline.ts
     │   ├── registration/              # [Dave] Context-aware form (RegistrationForm, WebinarForm, YcrForm, PriceSummary)
-    │   ├── marketplace/               # [Dave] Placeholder components (future separate project)
+    │   ├── marketplace/               # [Dave] Active merch components (CartDrawer, ProductGrid, PaymentModal) — Complete
     │   └── admin/                     # [Dave] Dashboard (KpiCards, AdminTables, GateScanner) — Complete
     └── app/
         ├── layout.tsx                 # [Ken]  Root layout
         ├── globals.css                # [shared] imports tokens.css
         ├── tokens.css                 # [Ken]  Design tokens from docs/DESIGN.md
-        ├── (public)/page.tsx          # [Ken & Dave] Main homepage (Timeline Bar + Reg Form)
+        ├── (public)/page.tsx          # [Ken & Dave] Main landing (Expanding Timeline / D-Day Hero + Reg Form)
         ├── mock-registration.ts       # [Dave] Mock registration submit handler
-        ├── marketplace/               # [Dave] Placeholder stub route
+        ├── marketplace/               # [Dave] Official merchandise store (Retained first-class route)
+        │   └── page.tsx               # Active merch catalog with persistent cart drawer & payment modal
         ├── admin/                     # [Dave] Committee dashboard & /admin/scan (Complete)
         └── api/
             ├── timeline/
@@ -115,11 +120,40 @@ flowchart LR
                     └── route.ts       # [Keane] Payment gateway callback endpoint
 ```
 
-> **Note on `/donate` Removal**: The `/donate` route and `src/components/donation/` have been removed from the frontend UI. Public donations will be managed by the marketplace website. `src/lib/contracts/donations.contract.ts` and `src/services/donations.service.ts` remain for Keane's backend processing.
+> **Website Structure Clarification**: The platform contains `/` (Main Event Landing), `/marketplace` (Official Merch Catalog, persistent cart drawer, payment modal — Dave's work is active and preserved), and `/admin` & `/admin/scan` (Committee portal). Only `/donate` is removed; donations will eventually merge into the marketplace flow.
 
 ---
 
-## 3. Supabase Database Schema (ERD)
+## 3. Shared Constants (`src/lib/constants.ts`)
+
+To avoid drift and magical hardcoded numbers between frontend forms and backend RPCs, `src/lib/constants.ts` serves as the **single source of truth** for all dates, base prices, and group discount tiers:
+
+```typescript
+// src/lib/constants.ts
+
+/**
+ * Event Date Boundaries
+ */
+export const YCR_OPENS_AT = new Date('2026-04-01T00:00:00+07:00');
+export const YCR_DATE_MIDNIGHT = new Date('2026-05-16T00:00:00+07:00');
+
+/**
+ * Base Event Pricing (in IDR)
+ * Both Webinar and YCR Individual are PAID registrations.
+ */
+export const PRICE_WEBINAR_IDR = 50_000;
+export const PRICE_YCR_INDIVIDUAL_IDR = 150_000;
+
+/**
+ * YCR Group Volume Discount Tiers
+ */
+export const DISCOUNT_TIER_5 = 0.10;   // 10% discount for 5–9 participants
+export const DISCOUNT_TIER_10 = 0.20;  // 20% discount for 10+ participants
+```
+
+---
+
+## 4. Supabase Database Schema (ERD)
 
 ```mermaid
 erDiagram
@@ -130,9 +164,8 @@ erDiagram
     TICKET_TIERS ||--o{ REGISTRATIONS : prices
     ORDERS ||--o{ REGISTRATIONS : pays_for
     ORDERS ||--o{ ORDER_ITEMS : contains
-    ORDERS ||--o| DONATIONS : records
-    PRODUCTS ||--o{ ORDER_ITEMS : includes
     ORDERS ||--o{ PAYMENT_LOGS : audits
+    PRODUCTS ||--o{ ORDER_ITEMS : includes
 
     EVENTS {
         uuid id PK
@@ -146,8 +179,8 @@ erDiagram
     TICKET_TIERS {
         uuid id PK
         uuid event_id FK
-        text name "Standard | Group Discount"
-        integer price_idr "e.g. 150000"
+        text name "Webinar | YCR Standard | YCR Group"
+        integer price_idr "50000 | 150000"
         integer quota_total
         integer quota_sold
     }
@@ -155,11 +188,12 @@ erDiagram
     REGISTRATIONS {
         uuid id PK
         uuid event_id FK
-        uuid ticket_tier_id FK "nullable for free events"
-        uuid order_id FK "nullable for free events"
+        uuid ticket_tier_id FK
+        uuid order_id FK
         text full_name
         text email
         text whatsapp
+        text nim_or_institution "nullable / optional"
         text registration_type "INDIVIDUAL | GROUP"
         text ticket_code UK "Signed QR check-in token"
         text checkin_status "UNCHECKED | CHECKED_IN"
@@ -218,16 +252,6 @@ erDiagram
         integer unit_price_idr
     }
 
-    DONATIONS {
-        uuid id PK
-        uuid order_id FK
-        text campaign "ycr | baksos"
-        integer amount_idr
-        boolean is_anonymous
-        text message
-        timestamptz created_at
-    }
-
     PAYMENT_LOGS {
         uuid id PK
         uuid order_id FK
@@ -240,11 +264,11 @@ erDiagram
 
 ---
 
-## 4. Shared Frontend–Backend Contracts (`src/lib/contracts/`)
+## 5. Shared Frontend–Backend Contracts (`src/lib/contracts/`)
 
 All schemas utilize standard Zod 4 syntax (`z.email()`, `z.uuid()`).
 
-### 4.1 Common & Shared Types (`src/lib/contracts/common.contract.ts`)
+### 5.1 Common & Shared Types (`src/lib/contracts/common.contract.ts`)
 ```typescript
 import { z } from 'zod';
 
@@ -256,30 +280,31 @@ export const PaidMethodSchema = z.enum(['QRIS', 'BCAVA', 'BRIVA', 'BNIVA', 'MAND
 export type PaidMethod = z.infer<typeof PaidMethodSchema>;
 ```
 
-### 4.2 Context-Aware Registration (`src/lib/contracts/registration.contract.ts`)
+### 5.2 Context-Aware Registration (`src/lib/contracts/registration.contract.ts`)
 ```typescript
 import { z } from 'zod';
 import { WhatsappSchema, PaidMethodSchema } from './common.contract';
 
-// Reusable member schema
+// Reusable member schema (nimOrInstitution is optional)
 export const MemberSchema = z.object({
   fullName: z.string().min(3).max(100),
   email: z.email(),
   whatsapp: WhatsappSchema,
+  nimOrInstitution: z.string().max(100).optional(),
 });
 export type Member = z.infer<typeof MemberSchema>;
 
-// Webinar Registration (Individual only)
+// Webinar Registration (PAID - Rp 50.000 placeholder, Individual only)
 export const CreateWebinarRegistrationSchema = z.object({
-  fullName: z.string().min(3).max(100),
-  email: z.email(),
-  whatsapp: WhatsappSchema,
+  member: MemberSchema,
+  paymentMethod: PaidMethodSchema,
 });
 export type CreateWebinarRegistrationInput = z.infer<typeof CreateWebinarRegistrationSchema>;
 
-// YCR Individual Registration
+// YCR Individual Registration (PAID - Rp 150.000 placeholder)
 export const CreateYcrRegistrationSchema = z.object({
   member: MemberSchema,
+  paymentMethod: PaidMethodSchema,
 });
 export type CreateYcrRegistrationInput = z.infer<typeof CreateYcrRegistrationSchema>;
 
@@ -291,8 +316,8 @@ export const CreateYcrGroupSchema = z.object({
 export type CreateYcrGroupInput = z.infer<typeof CreateYcrGroupSchema>;
 ```
 
-### 4.3 Sticky Timeline Bar & D-Day Rundown (`src/lib/contracts/timeline.contract.ts`)
-> **Contract Reuse**: The existing `TimelineMilestone` and `RundownSession` interfaces are directly reused to power the Sticky Timeline Bar.
+### 5.3 Expanding Timeline Bar & D-Day Rundown Hero (`src/lib/contracts/timeline.contract.ts`)
+> **Contract Reuse**: The existing `TimelineMilestone` and `RundownSession` interfaces power both the pre-D-Day Sticky Timeline Bar and the expanded D-Day Hero Rundown Showcase stage.
 
 ```typescript
 export interface TimelineMilestone {
@@ -320,14 +345,19 @@ export interface EventTimelineResponse {
 }
 ```
 
-- **Pre-D-Day**: The bar displays the 4 milestone nodes (`milestones`) with states:
+- **Pre-D-Day Mode**: The bar displays the 4 milestone nodes (`milestones`) with states:
   - `PAST` = filled green
   - `NOW` = pulsing gold
   - `UPCOMING` = hollow circle
   - Hover triggers 1-line tooltip; click opens `TimelineModal`.
-- **D-Day Mode**: Triggered automatically when `Date.now() >= YCR_DATE_MIDNIGHT`. The bar transitions to display `rundown` sessions chronologically with the identical visual progress bar and modal interactions.
+- **D-Day Hero Transformation Mode**: Triggered automatically when `Date.now() >= YCR_DATE_MIDNIGHT`.
+  - The timeline expands significantly from a simple top bar into the **primary visual hero focus of the page**.
+  - It becomes an expanded live **Rundown Showcase stage** with prominent session cards, live time indicator ("HAPPENING NOW"), speaker badges, and stage/room locations.
+  - The registration form steps down into a secondary role below the rundown (or displays "Registration Closed / Today's Live Event").
 
-### 4.4 Checkout & Payment Response (`src/lib/contracts/payments.contract.ts`)
+### 5.4 Checkout & Payment Response (`src/lib/contracts/payments.contract.ts`)
+Both Webinar and YCR are paid events, triggering a checkout session:
+
 ```typescript
 export interface CheckoutSessionResponse {
   orderCode: string;
@@ -339,12 +369,12 @@ export interface CheckoutSessionResponse {
   vaNumber?: string;        // Populated when Virtual Account is selected
   snapToken?: string;       // Populated if using Midtrans Snap modal
   expiresAt: string;        // ISO8601 timestamp (15 mins from creation)
-  ticketCode?: string;      // Populated if registration is FREE (e.g. Webinar)
+  ticketCode?: string;      // Populated once order status transitions to PAID
 }
 ```
 
-### 4.5 Backend Donations Contract (`src/lib/contracts/donations.contract.ts`)
-*(Retained in codebase for Keane's backend use; not exported to frontend index).*
+### 5.5 Backend Donations Contract (`src/lib/contracts/donations.contract.ts`)
+*(Retained in codebase for Keane's backend use; not exposed as a standalone `/donate` page).*
 ```typescript
 import { z } from 'zod';
 import { WhatsappSchema, PaidMethodSchema } from './common.contract';
@@ -364,23 +394,26 @@ export type CreateDonationInput = z.infer<typeof CreateDonationSchema>;
 
 ---
 
-## 5. Atomic Concurrency & RLS Rules (`Sean & Keane`)
+## 6. Atomic Concurrency & RLS Rules (`Sean & Keane`)
 
 1. **Atomic Group Registration & Quota Locking**:
-   - For YCR registrations, frontend submits `members: Member[]`.
+   - For YCR registrations, frontend submits `members: Member[]` and `paymentMethod: PaidMethod`.
    - Backend RPC function (`register_ycr_group`) verifies quota availability using `SELECT quota_sold, quota_total FROM ticket_tiers WHERE ... FOR UPDATE`.
    - Atomically increments `quota_sold = quota_sold + array_length(members)` and inserts registration records linked to the newly generated `orders` record.
-2. **Tiered Pricing Calculation (Server-Validated)**:
-   - Price calculation on server enforces volume discounts:
-     - 1–4 members: Rp 150.000 / member
-     - 5–9 members: Rp 135.000 / member (10% off)
-     - $\ge$ 10 members: Rp 120.000 / member (20% off)
+2. **Tiered Pricing Calculation (Server-Validated via Constants)**:
+   - Price calculation on server enforces volume discounts matching `src/lib/constants.ts`:
+     - 1–4 members: `PRICE_YCR_INDIVIDUAL_IDR` (Rp 150.000 / member)
+     - 5–9 members: `DISCOUNT_TIER_5` (10% off $\rightarrow$ Rp 135.000 / member)
+     - $\ge$ 10 members: `DISCOUNT_TIER_10` (20% off $\rightarrow$ Rp 120.000 / member)
    - Prevents client-side price tampering.
-3. **Webhook Verification (`Keane`)**:
+3. **Webinar Registration Pricing**:
+   - Fixed at `PRICE_WEBINAR_IDR` (Rp 50.000 / member).
+   - Generates an `orders` record of type `EVENT_TICKET` and creates payment gateway checkout.
+4. **Webhook Verification (`Keane`)**:
    - `POST /api/webhooks/payment/route.ts` verifies HMAC-SHA256 signature.
    - Transitions order status to `PAID`.
-   - On payment confirmation, generates unique QR `ticket_code`s for all registered group members and updates `registrations.checkin_status = 'UNCHECKED'`.
-4. **Row Level Security (RLS)**:
+   - On payment confirmation, generates unique QR `ticket_code`s for all registered participants and updates `registrations.checkin_status = 'UNCHECKED'`.
+5. **Row Level Security (RLS)**:
    - `events`, `event_milestones`, `event_sessions`: public `SELECT` where `is_published = true`.
    - `registrations`: `INSERT` via verified RPC; `SELECT` restricted to committee admin auth or verified `ticket_code`.
    - `payment_logs`: strictly restricted to `service_role`.
