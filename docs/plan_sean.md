@@ -1,0 +1,89 @@
+# AI Implementation Plan: Sean (Backend Track BE-1)
+
+> **Instructions for AI**: You are the dedicated AI coding assistant for **Sean (Sean Lawton)**. Stay strictly within the scope and directory boundaries defined below. Do not read or modify files belonging to Ken, Dave, or Keane to minimize token waste and eliminate merge conflicts.
+
+---
+
+## 1. Identity & Scope Boundaries
+
+- **Owner**: Sean Lawton (Sean)
+- **Email**: `slawton01@student.ciputra.ac.id` | **GitHub**: [@Sean-230](https://github.com/Sean-230)
+- **Branch Prefix**: `feat/be-sean-*`
+- **Primary Deliverables**:
+  1. Supabase PostgreSQL migrations for events, ticket tiers, registrations, timeline, and rundown.
+  2. Row Level Security (RLS) policies and Committee Admin authentication middleware.
+  3. Atomic PostgreSQL RPC `register_participant` (quota locking with `SELECT ... FOR UPDATE`).
+  4. QR check-in verification RPC `verify_and_checkin_ticket`.
+  5. Server Actions / query services for events, registrations, timeline, and admin metrics.
+
+### Allowed Files & Directories (READ & WRITE)
+- `supabase/migrations/0001_events_and_tickets.sql`
+- `supabase/migrations/0003_rls_and_rpcs.sql`
+- `supabase/migrations/0004_event_timeline.sql`
+- `supabase/migrations/0006_event_rundown.sql` (tentative)
+- `supabase/seed.sql`
+- `src/lib/supabase/` (`client.ts`, `server.ts`, `admin.ts`)
+- `src/middleware.ts` (Admin auth guard)
+- `src/services/events.service.ts`
+- `src/services/registrations.service.ts`
+- `src/services/timeline.service.ts`
+- `src/services/admin.service.ts`
+
+### Strictly Forbidden (DO NOT READ OR MODIFY)
+- `src/app/**` *(Owned by Ken & Dave — Frontend)*
+- `src/components/**` *(Owned by Ken & Dave — Frontend)*
+- `supabase/migrations/0002_*`, `0005_*` *(Owned by Keane — Marketplace & Orders)*
+- `src/services/orders.service.ts`, `src/services/payments.service.ts`, `src/app/api/webhooks/**` *(Owned by Keane)*
+
+### Context Files to Read (Minimal Token Load)
+1. `src/lib/contracts/events.contract.ts`
+2. `src/lib/contracts/timeline.contract.ts`
+3. `docs/ARCHITECTURE.md` (Sections 3 & 5: Database Schema ERD, RLS matrix, and RPC patterns)
+
+---
+
+## 2. Step-by-Step Task Checklist
+
+- [ ] **Task 1: Supabase SSR Clients & Auth Middleware (`src/lib/supabase/`, `src/middleware.ts`)**
+  - [ ] Implement `client.ts` using `createBrowserClient` from `@supabase/ssr`.
+  - [ ] Implement `server.ts` using `createServerClient` with Next.js cookie store forwarding.
+  - [ ] Implement `admin.ts` using `SUPABASE_SERVICE_ROLE_KEY` strictly for secure backend routines.
+  - [ ] Implement `src/middleware.ts` protecting `/admin/**` routes, redirecting unauthenticated users to `/admin/login`.
+
+- [ ] **Task 2: Events & Tickets Migration (`0001_events_and_tickets.sql`)**
+  - [ ] Create `events` table (`id`, `slug`, `title`, `description`, `event_date`, `venue`, `banner_url`, `is_active`).
+  - [ ] Create `ticket_tiers` table (`id`, `event_id`, `name`, `price_idr`, `quota_total`, `quota_sold`).
+  - [ ] Create `registrations` table (`id`, `event_id`, `ticket_tier_id`, `order_id`, `full_name`, `nim_or_institution`, `email`, `whatsapp`, `ticket_code`, `checkin_status`, `checked_in_at`).
+  - [ ] Add B-tree indexes on `events(slug)`, `registrations(ticket_code)`, and `registrations(email)`.
+
+- [ ] **Task 3: Row Level Security & Atomic RPCs (`0003_rls_and_rpcs.sql`)**
+  - [ ] Enable RLS on `events`, `ticket_tiers`, `registrations`.
+  - [ ] Public read access for active events and ticket tiers.
+  - [ ] Write a PostgreSQL transactional RPC `register_participant`:
+    - Row-lock `ticket_tiers` using `SELECT ... FOR UPDATE`.
+    - Verify `quota_sold < quota_total`.
+    - Atomically increment `quota_sold = quota_sold + 1`.
+    - Insert registration with unique cryptographically random `ticket_code`.
+  - [ ] Write check-in RPC `verify_and_checkin_ticket(p_ticket_code)`:
+    - Atomically check if `ticket_code` exists and `checkin_status == 'UNCHECKED'`.
+    - If valid: update `checkin_status = 'CHECKED_IN'` and set `checked_in_at = NOW()`.
+    - If already checked in: return structured error `ALREADY_CHECKED_IN`.
+
+- [ ] **Task 4: Timeline & Rundown Migrations (`0004_event_timeline.sql`, `0006_event_rundown.sql`)**
+  - [ ] Create `event_milestones` table (`id`, `title`, `date_label`, `description`, `status`, `sort_order`).
+  - [ ] Create `event_sessions` table (`id`, `event_id`, `time_start`, `time_end`, `title`, `speaker`, `is_tentative`).
+
+- [ ] **Task 5: Server Action Services (`src/services/`)**
+  - [ ] `events.service.ts`: Query active events, ticket tiers, and remaining quotas.
+  - [ ] `registrations.service.ts`: Wrap `register_participant` and `verify_and_checkin_ticket`.
+  - [ ] `timeline.service.ts`: Fetch chronological milestones matching `EventTimelineResponse`.
+  - [ ] `admin.service.ts`: Aggregate dashboard KPIs and generate CSV export query.
+
+---
+
+## 3. Pre-Merge Verification
+```bash
+npx supabase db reset --local   # Migrations must apply cleanly
+npm run db:types                # Auto-generate TypeScript definitions
+npm run typecheck               # Must compile with 0 errors
+```

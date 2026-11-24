@@ -30,6 +30,13 @@ Before writing code or prompting your AI coding assistant (Claude Code, Antigrav
 6. **[docs/TEAM_WORKFLOW.md](./docs/TEAM_WORKFLOW.md)** — Tracks, integration order, branch prefixes, and ready-to-paste AI prompts per member.
 7. **[docs/DESIGN.md](./docs/DESIGN.md)** — The "Sunlit Highway" design system (colours, fonts, motifs, components, accessibility) based on the official poster.
 
+### Dedicated Member AI Plans (Zero-Token-Waste)
+Each member has an isolated, token-efficient implementation plan. Give your AI agent only your file:
+- **Ken (FE-1)**: **[plan_ken.md](./plan_ken.md)** — Landing page, Event Hub, Registration, E-Tickets, Timeline.
+- **Dave (FE-2)**: **[plan_dave.md](./plan_dave.md)** — Marketplace, Cart Drawer, Payment Modal, Donations, Admin Scanner.
+- **Sean (BE-1)**: **[plan_sean.md](./plan_sean.md)** — Supabase Schema, RLS, Auth, Atomic Registration & Check-in RPCs.
+- **Keane (BE-2)**: **[plan_keane.md](./plan_keane.md)** — Orders Engine, 15-min Stock Lock RPC, Donations, Payment Webhook.
+
 ---
 
 ## 3. Quick Start & Development Commands
