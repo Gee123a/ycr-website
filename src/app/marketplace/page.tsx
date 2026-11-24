@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Info } from "lucide-react";
+import { CartDrawer } from "@/components/marketplace/CartDrawer";
 import { CategoryFilter } from "@/components/marketplace/CategoryFilter";
 import { ProductGrid, ProductGridSkeleton } from "@/components/marketplace/ProductGrid";
 import { parseCategory } from "@/components/marketplace/catalog";
+import { createMarketplaceOrder } from "./mock-checkout";
 import { getMarketplaceProducts } from "./mock-products";
 
 export const metadata: Metadata = {
@@ -13,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function MarketplacePage({ searchParams }: PageProps<"/marketplace">) {
   return (
-    <main className="mx-auto flex w-full max-w-[1120px] flex-col gap-5 px-4 pt-8 pb-16 sm:px-6 sm:pt-12">
+    <main className="mx-auto flex w-full max-w-[1120px] flex-col gap-5 px-4 pt-8 pb-24 sm:px-6 sm:pt-12">
       <header className="flex flex-col gap-2">
         <h1 className="display-title text-[32px] leading-9 sm:text-[40px] sm:leading-11">YCR Marketplace</h1>
         <p className="max-w-xl text-ink-2">
@@ -35,12 +37,13 @@ export default function MarketplacePage({ searchParams }: PageProps<"/marketplac
 
 async function Catalog({ searchParams }: Pick<PageProps<"/marketplace">, "searchParams">) {
   const category = parseCategory((await searchParams).category);
-  const products = await getMarketplaceProducts(category);
+  const [products, allProducts] = await Promise.all([getMarketplaceProducts(category), getMarketplaceProducts(null)]);
 
   return (
     <div className="flex flex-col gap-5">
       <CategoryFilter active={category} />
       <ProductGrid products={products} />
+      <CartDrawer products={allProducts} checkout={createMarketplaceOrder} />
     </div>
   );
 }
