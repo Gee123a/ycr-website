@@ -5,3 +5,4 @@ export * from "./donations.contract";
 export * from "./timeline.contract";
 export * from "./payments.contract";
 export * from "./admin.contract";
+export * from "./registration.contract";
