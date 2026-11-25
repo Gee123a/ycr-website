@@ -3,7 +3,7 @@ import { DISCOUNT_TIER_10, DISCOUNT_TIER_5, PRICE_YCR_INDIVIDUAL_IDR, YCR_OPENS_
 export type RegistrationMode = "webinar" | "ycr";
 
 export function registrationMode(nowMs: number): RegistrationMode {
-  return nowMs < YCR_OPENS_AT.getTime() ? "webinar" : "ycr";
+  return nowMs < YCR_OPENS_AT ? "webinar" : "ycr";
 }
 
 export interface YcrPrice {

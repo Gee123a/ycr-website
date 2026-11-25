@@ -30,7 +30,7 @@ test("price per person follows the group size, including both sides of each tier
 });
 
 test("the webinar form shows until the exact moment YCR opens", () => {
-  const opens = YCR_OPENS_AT.getTime();
+  const opens = YCR_OPENS_AT;
   assert.equal(registrationMode(opens - 1), "webinar");
   assert.equal(registrationMode(opens), "ycr");
   assert.equal(registrationMode(opens + 1), "ycr");
