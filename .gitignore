@@ -3,6 +3,7 @@ owners.txt
 schedule.txt
 plan/
 .claude/
+graphify-out/
 
 # Stray copies: the real ones are docs/*.md and the root plan_*.md
 /ARCHITECTURE.md
