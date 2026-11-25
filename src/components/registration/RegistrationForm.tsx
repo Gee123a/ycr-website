@@ -16,7 +16,7 @@ export function RegistrationForm() {
   );
 
   return (
-    <section id="register" aria-labelledby="register-title" className="mx-auto w-full max-w-[640px]">
+    <section aria-labelledby="register-title" className="mx-auto w-full max-w-[640px]">
       <div className="flex flex-col gap-5 rounded-leaf bg-surface p-5 shadow-card sm:p-6">
         <h2 id="register-title" className="font-display text-[26px] leading-[30px] text-forest-ink">
           {mode === "webinar" ? "Join the webinar" : "Register for The Highway"}
